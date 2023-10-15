@@ -4,8 +4,29 @@ type HasRawSql interface {
 	Raw() string
 }
 
-type BeizQueryBuilder interface {
+type EntityDefinition struct {
+	Table   string
+	IDField string
+}
+
+type EntityInterface interface {
+	TableName() string
+	Definition() EntityDefinition
+}
+
+type EntityAttribute struct {
+	DbFieldName string
+	DbTable     string
+}
+
+type BeizEntityQueryBuilder interface {
 	Entity(e EntityInterface) BeizQueryBuilder
+	GetAttributeMap() map[string]EntityAttribute
+	GetAttributeField(propKey string) EntityAttribute
+	JoinAttributes(propKey string) BeizQueryBuilder
+}
+
+type BeizQueryBuilder interface {
 	From(from string) BeizQueryBuilder
 	Select(fields ...string) BeizQueryBuilder
 	Where(condition string, params ...interface{}) BeizQueryBuilder

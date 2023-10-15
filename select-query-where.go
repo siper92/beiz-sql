@@ -40,7 +40,7 @@ func getFieldsFromCondition(condition string) []string {
 
 func (qb *SelectQuery) Where(condition string, params ...interface{}) BeizQueryBuilder {
 
-	rawCondition := strings.TrimSpace(strings.ToLower(condition))
+	rawCondition := strings.TrimSpace(condition)
 	logicType := AND
 
 	if strings.Index(rawCondition, "or ") == 0 {

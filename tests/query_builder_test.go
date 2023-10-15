@@ -86,3 +86,33 @@ where t.id = ?`,
 		qb.MustBuild(),
 	)
 }
+
+func TestMultipleJoins(t *testing.T) {
+	qb := beiz_sql.NewSelectQuery().
+		From("test t").
+		Select("*").
+		Where("t.id = ?", 1).
+		Join("test2 t2 on t2.id = t.id").
+		Join("test3 t3 on t3.name = t.name").
+		Where("t3.id > ?", 2)
+
+	core_utils.AMatchesB(t,
+		`select * from test t
+join test2 t2 on t2.id = t.id
+join test3 t3 on t3.name = t.name
+where t.id = ? and t3.id > ?`,
+		qb.MustBuild(),
+	)
+}
+
+func TestJoinsFormatting(t *testing.T) {
+	qb := beiz_sql.NewSelectQuery().
+		From("test t").
+		Join("test2 t2 on t2.id = t.id and code = '%s'", "TEST")
+
+	core_utils.AMatchesB(t,
+		`select * from test t
+join test2 t2 on t2.id = t.id and code = 'TEST'`,
+		qb.MustBuild(),
+	)
+}

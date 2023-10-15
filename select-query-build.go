@@ -29,8 +29,13 @@ func (qb *SelectQuery) buildSelect() string {
 func (qb *SelectQuery) buildWhere() string {
 	selectString := "where "
 	if len(qb.conditions) > 0 {
-		for _, condition := range qb.conditions {
-			selectString += string(condition.raw) + " "
+		for i, condition := range qb.conditions {
+			if i > 0 {
+				// AND/OR
+				selectString += string(condition.logicType) + " "
+			}
+
+			selectString += condition.String() + " "
 		}
 	}
 
@@ -54,7 +59,9 @@ func (qb *SelectQuery) SQL() (string, error) {
 	}
 
 	if len(qb.conditions) > 0 {
-		selectString += "\n" + strings.TrimSpace(qb.buildWhere())
+		selectString += "\n" + strings.TrimSpace(
+			qb.buildWhere(),
+		)
 	}
 
 	selectString += "\n" + qb.orderBy

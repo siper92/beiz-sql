@@ -8,8 +8,8 @@ import (
 type LogicType string
 
 const (
-	AND LogicType = "AND"
-	OR  LogicType = "OR"
+	AND LogicType = "and"
+	OR  LogicType = "or"
 )
 
 type Table struct {
@@ -32,9 +32,9 @@ type SqlCondition struct {
 type JoinType string
 
 const (
-	Join  JoinType = "JOIN"
-	Left  JoinType = "LEFT JOIN"
-	Right JoinType = "RIGHT JOIN"
+	Join  JoinType = "join"
+	Left  JoinType = "left join"
+	Right JoinType = "right join"
 )
 
 type JoinCondition struct {
@@ -49,14 +49,15 @@ func (jc *JoinCondition) String() string {
 		return jc.result
 	}
 
-	return strings.ToLower(fmt.Sprintf(
+	return fmt.Sprintf(
 		"%s %s",
 		jc._type,
 		fmt.Sprintf(jc.raw, jc.params...),
-	))
+	)
 }
 
 // SelectQuery -> BeizQueryBuilder
+// SelectQuery -> BeizEntityQueryBuilder
 type SelectQuery struct {
 	entity     EntityInterface
 	table      Table
@@ -111,17 +112,20 @@ type SelectField struct {
 }
 
 func (sf *SelectField) String() string {
-	var selectV string
-	if sf.table.alias != "" || sf.field != "" {
-		selectV = sf.table.alias + "." + sf.field
+	selectV := sf.raw
+	if sf.table.alias != "" && sf.field != "" {
+		if sf.table.alias != "" {
+			selectV = sf.table.alias + "." + sf.field
+		} else {
+			selectV = sf.field
+		}
+
 		if sf.alias != "" {
 			selectV += " as " + sf.alias
 		}
-
-		return selectV
 	}
 
-	return sf.raw
+	return selectV
 }
 
 func stringToSelectFields(s string) []SelectField {
@@ -179,34 +183,26 @@ func (qb *SelectQuery) Select(fields ...string) BeizQueryBuilder {
 	return qb
 }
 
-func (qb *SelectQuery) Join(joins string, params ...interface{}) BeizQueryBuilder {
+func (qb *SelectQuery) join(joiType JoinType, join string, params ...interface{}) BeizQueryBuilder {
 	qb.joints = append(qb.joints, JoinCondition{
-		_type:  Join,
-		raw:    joins,
+		_type:  joiType,
+		raw:    join,
 		params: params,
-		result: fmt.Sprintf(joins, params...),
+		result: fmt.Sprintf(join, params...),
 	})
 	return qb
+}
+
+func (qb *SelectQuery) Join(joins string, params ...interface{}) BeizQueryBuilder {
+	return qb.join(Join, joins, params...)
 }
 
 func (qb *SelectQuery) LeftJoin(joins string, params ...interface{}) BeizQueryBuilder {
-	qb.joints = append(qb.joints, JoinCondition{
-		_type:  Left,
-		raw:    joins,
-		params: params,
-		result: fmt.Sprintf(joins, params...),
-	})
-	return qb
+	return qb.join(Left, joins, params...)
 }
 
 func (qb *SelectQuery) RightJoin(joins string, params ...interface{}) BeizQueryBuilder {
-	qb.joints = append(qb.joints, JoinCondition{
-		_type:  Right,
-		raw:    joins,
-		params: params,
-		result: fmt.Sprintf(joins, params...),
-	})
-	return qb
+	return qb.join(Right, joins, params...)
 }
 
 func (qb *SelectQuery) OrderBy(order string) BeizQueryBuilder {
