@@ -67,17 +67,6 @@ type SelectQuery struct {
 	orderBy    string
 }
 
-func (qb *SelectQuery) Entity(e EntityInterface) BeizQueryBuilder {
-	qb.entity = e
-	qb.table = Table{
-		raw:   e.TableName() + " e",
-		name:  e.TableName(),
-		alias: "e",
-	}
-
-	return qb
-}
-
 func tableStringToTable(raw string) Table {
 	var alias string
 	var name string
@@ -215,11 +204,11 @@ func (qb *SelectQuery) OrderBy(order string) BeizQueryBuilder {
 	return qb
 }
 
-func NewSelectQuery() BeizQueryBuilder {
+func NewSelectQuery() *SelectQuery {
 	return &SelectQuery{}
 }
 
-func NewEntitySelectQuery(e EntityInterface) BeizQueryBuilder {
+func NewEntitySelectQuery(e EntityInterface) *SelectQuery {
 	return &SelectQuery{
 		table: Table{
 			raw:   e.TableName() + " e",

@@ -9,14 +9,18 @@ type EntityDefinition struct {
 	IDField string
 }
 
+type EntityAttribute struct {
+	DbFieldName string
+	DbTable     string
+}
+
 type EntityInterface interface {
 	TableName() string
 	Definition() EntityDefinition
 }
 
-type EntityAttribute struct {
-	DbFieldName string
-	DbTable     string
+type BeizQueryRunner interface {
+	Execute(bind interface{}) error
 }
 
 type BeizEntityQueryBuilder interface {
@@ -39,8 +43,4 @@ type BeizQueryBuilder interface {
 	SQL() (string, error)
 	MustBuild() string
 	DebugSql() string
-}
-
-type BeizQueryRunner interface {
-	Execute(bind interface{}) error
 }
