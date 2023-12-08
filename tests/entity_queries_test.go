@@ -6,10 +6,11 @@ import (
 )
 
 type TestEntity struct {
-	ID   int    `db:"entity_id"`
-	Name string `db:"name"`
-	Test string `db:"test_field_1"`
-	Path string `db:"test_path" attr:"path"`
+	ID    int    `db:"entity_id"`
+	Name  string `db:"name" attr:"path"`
+	Test  string `db:"test_field_1"`
+	Test2 string
+	Path  string `db:"path"`
 }
 
 func (t TestEntity) TableName() string {
@@ -25,11 +26,6 @@ func (t TestEntity) Definition() beiz_sql.EntityDefinition {
 
 func TestEntityGetAttributeFields(t *testing.T) {
 	e := TestEntity{}
-	qb, ok := beiz_sql.NewSelectQuery().
-		Entity(e).(beiz_sql.BeizEntityQueryBuilder)
-	if !ok {
-		t.Fatal("Not a BeizEntityQueryBuilder")
-	}
-
-	attribute := qb.GetAttributeMap()
+	testFieldAst := beiz_sql.GetStructFieldOrNil(e, "Test")
+	_ = testFieldAst
 }
